@@ -30,7 +30,23 @@ cp -f build/sriov /usr/libexec/cni/  # copy sriov-cni binary to default crio cni
 VF_PCI_ID=$1
 
 cat > "/etc/cni/net.d/1-sriov-net-attach-def.conf" << EOF
-{ "cniVersion":"0.3.1", "name":"sriov-net","type":"sriov","vlan":0,"spoofchk":"off","vlanQoS":0,"ipam":{"type":"host-local","subnet":"10.56.217.0/24","rangeStart":"10.56.217.171","rangeEnd":"10.56.217.181","routes":[{"dst":"0.0.0.0/0"}],"gateway":"10.56.217.1"}, "deviceID": "${VF_PCI_ID}" }
+{ 
+    "cniVersion":"0.3.1",
+    "name":"sriov-net",
+    "type":"sriov",
+    "vlan":0,
+    "spoofchk":"off",
+    "vlanQoS":0,
+    "ipam": {
+      "type":"host-local",
+      "subnet":"192.168.${subnet}.${host_id}/24",
+      "rangeStart":"192.168.${subnet}.${host_id}",
+      "rangeEnd":"10.56.217.181",
+      "routes":[{"dst":"0.0.0.0/0"}],
+      "gateway":"10.56.217.1"
+    },
+    "deviceID": "${VF_PCI_ID}"
+}
 EOF
 
 # Run a pod
@@ -72,7 +88,7 @@ cat > "container.json" << EOF
 }
 EOF
 
-crictl create ${pod_id}  container.json pod.json
+container_id=$(crictl create ${pod_id}  container.json pod.json)
 
 # Get sriov container id
 crictl ps --all
