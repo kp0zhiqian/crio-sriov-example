@@ -28,6 +28,8 @@ cp -f build/sriov /usr/libexec/cni/  # copy sriov-cni binary to default crio cni
 # VF_PCI_ID from cmdline
 
 VF_PCI_ID=$1
+START_IP=$2
+END_IP=$3
 
 cat > "/etc/cni/net.d/1-sriov-net-attach-def.conf" << EOF
 { 
@@ -39,11 +41,11 @@ cat > "/etc/cni/net.d/1-sriov-net-attach-def.conf" << EOF
     "vlanQoS":0,
     "ipam": {
       "type":"host-local",
-      "subnet":"192.168.${subnet}.${host_id}/24",
-      "rangeStart":"192.168.${subnet}.${host_id}",
-      "rangeEnd":"10.56.217.181",
+      "subnet":"192.168.111.0/24",
+      "rangeStart":"192.168.111.${START_IP}",
+      "rangeEnd":"192.168.111.${END_IP}",
       "routes":[{"dst":"0.0.0.0/0"}],
-      "gateway":"10.56.217.1"
+      "gateway":"192.168.111.254"
     },
     "deviceID": "${VF_PCI_ID}"
 }
@@ -94,6 +96,5 @@ container_id=$(crictl create ${pod_id}  container.json pod.json)
 crictl ps --all
 
 # Check sriov interface inside container
-crictl exec -it ${container_id} bash
-ifconfig eth0 # execute inside container
-ethtool -i eth0 # execut inside container
+crictl exec ${container_id} ip link show eth0
+crictl exec ${container_id} ethtool -i eth0
