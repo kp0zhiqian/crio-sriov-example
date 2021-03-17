@@ -3,6 +3,7 @@
 # Install cri-tools
 CRICTL_VERSION="v1.20.0"
 
+sudo yum install -yq wget
 wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$CRICTL_VERSION/crictl-$CRICTL_VERSION-linux-amd64.tar.gz
 sudo tar zxvf crictl-$CRICTL_VERSION-linux-amd64.tar.gz -C /usr/local/bin
 rm -f crictl-$CRICTL_VERSION-linux-amd64.tar.gz
@@ -69,7 +70,7 @@ EOF
 pod_id=$(crictl runp --runtime=runc pod.json)  # record the pod_id returned by this cmd
 
 # Pull container image
-CONTAINER_IMAGE="quay.io/zshi/centos:httpd-iperf"
+CONTAINER_IMAGE="quay.io/zhguan/centos8:latest"
 crictl pull $CONTAINER_IMAGE
 
 # Run a container inside pod
